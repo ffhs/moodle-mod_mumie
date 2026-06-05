@@ -1,5 +1,5 @@
-define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events', 'core/fragment', 'core/ajax', 'core/yui'],
-    function($, Str, ModalFactory, ModalEvents, Fragment, Ajax, Y) {
+define(['jquery', 'core/str', 'core/modal_save_cancel', 'core/modal_events', 'core/fragment', 'core/ajax', 'core/yui'],
+    function($, Str, ModalSaveCancel, ModalEvents, Fragment, Ajax, Y) {
 
         var MumieDueDate = function(selector, contextid, formdata) {
             this.contextid = contextid;
@@ -14,11 +14,11 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events', 'core/f
             const triggers = $(selector);
             return Str.get_string('mumie_duedate_form', 'mod_mumie').then(function(title) {
                 // Create the modal.
-                return ModalFactory.create({
-                    type: ModalFactory.types.SAVE_CANCEL,
+                return ModalSaveCancel.create({
                     title: title,
-                    body: this.getBody(formdata)
-                }, triggers);
+                    body: this.getBody(formdata),
+                    large: true,
+                });
             }.bind(this)).then(function(modal) {
                 // Keep a reference to the modal.
                 this.modal = modal;
@@ -36,6 +36,11 @@ define(['jquery', 'core/str', 'core/modal_factory', 'core/modal_events', 'core/f
                 this.modal.getRoot().on(ModalEvents.save, this.submitForm.bind(this));
                 // We also catch the form submit event and use it to submit the form with ajax.
                 this.modal.getRoot().on('submit', 'form', this.submitFormAjax.bind(this));
+
+                triggers.on('click', function(e) {
+                    e.preventDefault();
+                    this.modal.show();
+                }.bind(this));
 
                 return this.modal;
 
